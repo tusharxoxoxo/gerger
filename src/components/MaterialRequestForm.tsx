@@ -22,7 +22,7 @@ import { getProjects } from "../lib/supabase/materialRequests";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../supabaseClient";
 import { getMaterialSuggestions, suggestPriority } from "../lib/ai/materialSuggestions";
-import type { MaterialRequest, MaterialRequestPriority } from "../types/database";
+import type { MaterialRequestPriority } from "../types/database";
 import { Sparkles } from "lucide-react";
 
 const materialRequestSchema = z.object({
@@ -50,7 +50,7 @@ export function MaterialRequestForm({ requestId, onSuccess }: MaterialRequestFor
     priority: MaterialRequestPriority;
     reasoning: string;
   } | null>(null);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [_isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   const { data: request, isLoading: isLoadingRequest } = useMaterialRequest(requestId || null);
   const { data: projects } = useQuery({

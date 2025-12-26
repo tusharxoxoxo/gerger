@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { supabase } from "../supabaseClient";
 import { getUserCompany } from "../lib/supabase/materialRequests";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
@@ -12,14 +13,14 @@ interface CompanyAssignmentCheckProps {
 export function CompanyAssignmentCheck({ children }: CompanyAssignmentCheckProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasCompany, setHasCompany] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [_userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     // Get current user
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       const currentUserId = session?.user?.id || null;
       setUserId(currentUserId);
-      
+
       if (currentUserId) {
         checkCompanyAssignment(currentUserId);
       } else {
@@ -29,10 +30,10 @@ export function CompanyAssignmentCheck({ children }: CompanyAssignmentCheckProps
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       const currentUserId = session?.user?.id || null;
       setUserId(currentUserId);
-      
+
       if (currentUserId) {
         checkCompanyAssignment(currentUserId);
       } else {

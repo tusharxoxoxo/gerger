@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, type FormEvent, type ChangeEvent } from 'react'
 import { supabase } from './supabaseClient'
+
 export default function Auth() {
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState('')
@@ -7,7 +8,7 @@ export default function Auth() {
     const [message, setMessage] = useState('')
     const [error, setError] = useState('')
 
-    const handleLogin = async (event) => {
+    const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         setLoading(true)
         setMessage('')
@@ -25,7 +26,7 @@ export default function Auth() {
 
         if (authError) {
             // Handle rate limiting specifically (429 Too Many Requests)
-            const errorMessage = authError.message || authError.error_description || ''
+            const errorMessage = authError.message || ''
             if (authError.status === 429 || errorMessage.includes('429') || errorMessage.toLowerCase().includes('too many requests')) {
                 setError('Too many requests. Please wait a few minutes before requesting another magic link.')
             } else {
@@ -36,6 +37,19 @@ export default function Auth() {
         }
         setLoading(false)
     }
+
+    const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value)
+        setError('')
+        setMessage('')
+    }
+
+    const handleCompanyNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setCompanyName(e.target.value)
+        setError('')
+        setMessage('')
+    }
+
     return (
         <div className="row flex flex-center">
             <div className="col-6 form-widget">
@@ -48,11 +62,7 @@ export default function Auth() {
                             type="text"
                             placeholder="Company name"
                             value={companyName}
-                            onChange={(e) => {
-                                setCompanyName(e.target.value)
-                                setError('')
-                                setMessage('')
-                            }}
+                            onChange={handleCompanyNameChange}
                         />
                     </div>
                     <div>
@@ -62,11 +72,7 @@ export default function Auth() {
                             placeholder="Your email"
                             value={email}
                             required={true}
-                            onChange={(e) => {
-                                setEmail(e.target.value)
-                                setError('')
-                                setMessage('')
-                            }}
+                            onChange={handleEmailChange}
                         />
                     </div>
                     {error && (

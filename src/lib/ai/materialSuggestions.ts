@@ -51,7 +51,7 @@ export async function getMaterialSuggestions(
   }
 
   const queryLower = query.toLowerCase();
-  
+
   // Combine common materials with past requests
   const allMaterials = [
     ...COMMON_MATERIALS,
@@ -163,7 +163,7 @@ export async function suggestPriority(
   materialName: string,
   quantity: number,
   unit: string,
-  projectId?: string
+  _projectId?: string
 ): Promise<PrioritySuggestion> {
   // Base heuristics
   let priority: "low" | "medium" | "high" | "urgent" = "medium";
@@ -203,7 +203,7 @@ export async function suggestPriority(
         materialName,
         quantity,
         unit,
-        apiKey
+        openaiKey
       );
       if (aiSuggestion) {
         return aiSuggestion;
