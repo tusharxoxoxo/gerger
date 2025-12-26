@@ -52,37 +52,33 @@ VITE_OPENAI_API_KEY=your_openai_api_key  # Optional, for AI features
 
 ### 3. Database Setup
 
-Run the migration SQL in your Supabase SQL Editor:
+Run **both** migration SQL files in your Supabase SQL Editor (in order):
 
 1. Go to your Supabase project dashboard
 2. Navigate to SQL Editor
-3. Copy and paste the contents of `supabase/migrations/001_initial_schema.sql`
-4. Execute the migration
+3. Run **`supabase/migrations/001_initial_schema.sql`** first - creates base tables
+4. Run **`supabase/migrations/002_auto_company_assignment.sql`** second - adds signup automation
 
-The migration creates:
+The migrations create:
 
-- `companies` table
-- `projects` table
-- `user_companies` junction table
-- `material_requests` table
+- `companies`, `projects`, `user_companies`, `material_requests` tables
 - Row Level Security (RLS) policies
 - Indexes for performance
+- **Auto-assignment triggers**: When users sign up with a company name, they're automatically assigned
 
-### 4. Initial Data Setup
+### 4. Initial Data Setup (Optional)
 
-After running the migration, you'll need to:
+> **Note**: If you ran the second migration, company assignment happens automatically during signup. Manual setup is only needed for existing users or testing.
+
+To manually assign a user to a company:
 
 1. **Create a company**:
-
    ```sql
    INSERT INTO companies (name) VALUES ('Your Company Name');
    ```
 
 2. **Create a user-company association**:
-
    ```sql
-   -- Replace 'user-uuid' with your auth.users id
-   -- Replace 'company-uuid' with the company id from step 1
    INSERT INTO user_companies (user_id, company_id, role)
    VALUES ('user-uuid', 'company-uuid', 'admin');
    ```
