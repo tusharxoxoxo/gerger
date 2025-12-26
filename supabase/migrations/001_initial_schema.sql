@@ -125,7 +125,11 @@ CREATE POLICY "Users can update material requests from their company"
 
 -- Function to get user's company_id (helper for queries)
 CREATE OR REPLACE FUNCTION get_user_company_id()
-RETURNS UUID AS $$
-  SELECT company_id FROM user_companies WHERE user_id = auth.uid() LIMIT 1;
-$$ LANGUAGE sql STABLE;
+RETURNS UUID
+LANGUAGE sql
+STABLE
+SET search_path = public, pg_catalog
+AS $$
+  SELECT company_id FROM public.user_companies WHERE user_id = auth.uid() LIMIT 1;
+$$;
 

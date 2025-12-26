@@ -5,21 +5,44 @@ import Auth from "./Auth";
 import MaterialRequestsPage from "./pages/MaterialRequestsPage";
 import { CompanyProvider } from "./contexts/CompanyContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { CompanyAssignmentCheck } from "./components/CompanyAssignmentCheck";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if we're returning from a magic link (URL hash contains auth tokens)
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const hasAuthParams = hashParams.has('access_token') || hashParams.has('type');
+    
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
+      
+      // If we have auth params in URL but no session, wait a bit for Supabase to process
+      if (hasAuthParams && !session) {
+        setTimeout(() => {
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            setLoading(false);
+          });
+        }, 100);
+      }
     });
 
+    // Listen for auth state changes (including when user returns from magic link)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
+      setLoading(false);
+      
+      // Clear URL hash after successful authentication
+      if (event === 'SIGNED_IN' && session && window.location.hash) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -33,7 +56,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Auth />;
   }
 
-  return <>{children}</>;
+  return (
+    <CompanyAssignmentCheck>
+      {children}
+    </CompanyAssignmentCheck>
+  );
 }
 
 export function App() {

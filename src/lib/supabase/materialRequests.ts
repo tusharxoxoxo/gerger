@@ -117,22 +117,46 @@ export async function getProjects(companyId: string) {
 }
 
 export async function getUserCompany(userId: string) {
-  const { data, error } = await supabase
+  // First, get the user_companies row
+  const { data: userCompany, error: userCompanyError } = await supabase
     .from("user_companies")
-    .select(
-      `
-      *,
-      company:companies(*)
-    `
-    )
+    .select("*")
     .eq("user_id", userId)
     .limit(1)
-    .single();
+    .maybeSingle();
 
-  if (error) {
-    throw new Error(`Failed to fetch user company: ${error.message}`);
+  if (userCompanyError) {
+    throw new Error(`Failed to fetch user company: ${userCompanyError.message}`);
   }
 
-  return data;
+  // If no user_company found, return null
+  if (!userCompany) {
+    return null;
+  }
+
+  // If we have a company_id, fetch the company details
+  if (userCompany.company_id) {
+    const { data: company, error: companyError } = await supabase
+      .from("companies")
+      .select("*")
+      .eq("id", userCompany.company_id)
+      .single();
+
+    if (companyError) {
+      // If company fetch fails, still return the user_company data without company details
+      console.warn("Failed to fetch company details:", companyError.message);
+      return {
+        ...userCompany,
+        company: null,
+      };
+    }
+
+    return {
+      ...userCompany,
+      company,
+    };
+  }
+
+  return userCompany;
 }
 

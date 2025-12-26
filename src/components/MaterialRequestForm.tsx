@@ -291,14 +291,14 @@ export function MaterialRequestForm({ requestId, onSuccess }: MaterialRequestFor
         <div>
           <Label htmlFor="project_id">Project (Optional)</Label>
           <Select
-            value={watch("project_id") || ""}
-            onValueChange={(value) => setValue("project_id", value || null)}
+            value={watch("project_id") || "__none__"}
+            onValueChange={(value) => setValue("project_id", value === "__none__" ? null : value)}
           >
             <SelectTrigger id="project_id">
               <SelectValue placeholder="Select project" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="__none__">None</SelectItem>
               {projects?.map((project) => (
                 <SelectItem key={project.id} value={project.id}>
                   {project.name}
@@ -323,8 +323,8 @@ export function MaterialRequestForm({ requestId, onSuccess }: MaterialRequestFor
             {isSubmitting
               ? "Saving..."
               : requestId
-              ? "Update Request"
-              : "Create Request"}
+                ? "Update Request"
+                : "Create Request"}
           </Button>
           <Button
             type="button"

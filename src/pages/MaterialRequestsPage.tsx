@@ -59,19 +59,6 @@ export default function MaterialRequestsPage({ mode: propMode }: MaterialRequest
     );
   }
 
-  if (!companyId) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-destructive mb-4">No company assigned to your account.</p>
-          <p className="text-sm text-muted-foreground">
-            Please contact your administrator to assign you to a company.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   if (mode === "create" || mode === "edit") {
     return (
       <div className="container mx-auto py-8 max-w-2xl">
